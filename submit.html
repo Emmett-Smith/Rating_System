@@ -17,16 +17,27 @@
 
       document.getElementById("resultsButton").onclick = function() {
         var selfScore = 0;
+        var overallScores = {};
         var feedback = "";
 
-        // Retrieve the ratings and calculate the average score
+        // Retrieve the ratings and calculate the average scores
         for (var i = 1; i <= numRaters; i++) {
           var ratings = JSON.parse(localStorage.getItem("ratings_" + i));
           for (var attribute in ratings) {
             selfScore += ratings[attribute];
+            if (!overallScores[attribute]) {
+              overallScores[attribute] = ratings[attribute];
+            } else {
+              overallScores[attribute] += ratings[attribute];
+            }
           }
         }
         selfScore /= (numRaters * attributes.length);
+
+        // Calculate the average scores for each attribute
+        for (var attribute in overallScores) {
+          overallScores[attribute] /= numRaters;
+        }
 
         // Generate feedback based on the self score
         if (selfScore < 6) {
@@ -34,10 +45,10 @@
         } else if (selfScore < 8) {
           feedback += "<p>Recommendation: Continue to work on enhancing your desirable traits.</p>";
         } else {
-          feedback += "<p>Recommendation: Congratulations! You have strong desirable traits. We have no clue why you can't pull! Tough luck :(</p>";
+          feedback += "<p>Recommendation: Congratulations! You have strong desirable traits.</p>";
         }
 
-        if (selfScore > 7) {
+        if (selfScore > 9) {
           feedback += "<p>You should be proud of yourself! You have exceptional qualities.</p>";
         } else if (selfScore < 4) {
           feedback += "<p>Don't be too hard on yourself. Everyone has areas they can improve on.</p>";
@@ -46,22 +57,16 @@
         }
 
         // Generate suggestions for improvement from others
-        feedback += "<h3>Suggestions for Improvement:</h3>";
-        for (var i = 1; i <= numRaters; i++) {
-          var ratings = JSON.parse(localStorage.getItem("ratings_" + i));
-          console.log("Ratings for rater " + i + ":", ratings); // Debugging statement
-          for (var attribute in ratings) {
-            if (ratings[attribute] < selfScore) {
-              feedback += "<p>- Improve your " + attribute + " to be more appealing.</p>";
-            } else if (ratings[attribute] > selfScore) {
-              feedback += "<p>- Leverage your strength in " + attribute + " to your advantage.</p>";
-            } else {
-              feedback += "<p>- Maintain your level of " + attribute + ".</p>";
-            }
+        feedback += "<h3>Suggestions for Improvement from Others:</h3>";
+        for (var attribute in overallScores) {
+          if (overallScores[attribute] < selfScore) {
+            feedback += "<p>- Improve your " + attribute + " to be more appealing.</p>";
+          } else if (overallScores[attribute] > selfScore) {
+            feedback += "<p>- Leverage your strength in " + attribute + " to your advantage.</p>";
+          } else {
+            feedback += "<p>- Maintain your level of " + attribute + ".</p>";
           }
         }
-
-
 
         // Clear the ratings from local storage
         for (var i = 1; i <= numRaters; i++) {
@@ -72,7 +77,14 @@
         var resultsContainer = document.createElement("div");
         resultsContainer.innerHTML = "<h2>Results</h2>" +
           "<p>Score: " + selfScore.toFixed(2) + "</p>" +
-          "<h3>Feedback:</h3>" +
+          "<h3>Overall Scores:</h3>";
+
+        // Add overall scores for each attribute
+        for (var attribute in overallScores) {
+          resultsContainer.innerHTML += "<p>" + attribute + ": " + overallScores[attribute].toFixed(2) + "</p>";
+        }
+
+        resultsContainer.innerHTML += "<h3>Feedback:</h3>" +
           feedback;
         document.body.appendChild(resultsContainer);
       };
@@ -80,3 +92,4 @@
   </div>
 </body>
 </html>
+
