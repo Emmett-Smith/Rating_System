@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Why Can't I Pull</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Please fill out the fields below: </h1>
+    <form id="ratingSetupForm" onsubmit="return setupRating()">
+      <label for="numRaters">Number of Raters:</label>
+      <input type="number" id="numRaters" name="numRaters" required min="1"><br>
+      <label for="selfRating">Self Rating:</label>
+      <input type="number" id="selfRating" name="selfRating" required min="1" max="10"><br>
+      <button type="submit">Start Rating</button>
+    </form>
+  </div>
+
+  <script>
+    function setupRating() {
+      var numRatersInput = document.getElementById("numRaters");
+      var numRaters = parseInt(numRatersInput.value);
+      var selfRatingInput = document.getElementById("selfRating");
+      var selfRating = parseInt(selfRatingInput.value);
+
+      if (isNaN(selfRating) || selfRating < 1 || selfRating > 10) {
+        alert("Please enter a valid self rating between 1 and 10.");
+        return false;
+      }
+
+      localStorage.setItem("numRaters", numRaters);
+      localStorage.setItem("currentRater", 1);
+      localStorage.setItem("selfRating", selfRating);
+
+      window.location.href = "rating.html";
+      return false;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rating Page</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+  <script src="rating.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Rate The Person Who Sent You This</h1>
+    <h2 id="raterNumber"></h2>
+    <form id="ratingForm">
+      <div id="ratingAttributes">
+        <!-- Dynamically generated rating attributes will be inserted here -->
+      </div>
+      <button id="nextButton" type="button">Next</button>
+    </form>
+  </div>
+
+  <script>
+    var currentRater = parseInt(localStorage.getItem("currentRater"));
+    var numRaters = parseInt(localStorage.getItem("numRaters"));
+    var attributes = ["Intelligence", "Toned Physique", "Kindness", "Physical Appearance", "Hair", "Masculinity", "Empathy/Thoughtfulness", "Reliability", "Smell", "Humor", "Competence/Practical-Skills"];
+
+    document.getElementById("raterNumber").textContent = "Rater Number " + currentRater;
+
+    var ratingForm = document.getElementById("ratingForm");
+    var ratingAttributes = document.getElementById("ratingAttributes");
+
+    // Generate rating attributes dynamically
+    for (var i = 0; i < attributes.length; i++) {
+      var attribute = attributes[i];
+      var attributeLabel = document.createElement("label");
+      attributeLabel.textContent = "Rate " + attribute + ":";
+      var ratingInput = document.createElement("input");
+      ratingInput.type = "number";
+      ratingInput.name = attribute.toLowerCase().replace(/ /g, "_");
+      ratingInput.min = "1";
+      ratingInput.max = "10";
+      ratingInput.required = true;
+      var attributeContainer = document.createElement("div");
+      attributeContainer.appendChild(attributeLabel);
+      attributeContainer.appendChild(ratingInput);
+      ratingAttributes.appendChild(attributeContainer);
+    }
+
+    document.getElementById("nextButton").onclick = function() {
+      if (ratingForm.checkValidity()) {
+        var ratings = {};
+
+        // Retrieve the ratings
+        var ratingInputs = ratingForm.elements;
+        for (var i = 0; i < ratingInputs.length; i++) {
+          var input = ratingInputs[i];
+          if (input.type === "number") {
+            ratings[input.name] = parseInt(input.value);
+          }
+        }
+
+        localStorage.setItem("ratings_" + currentRater, JSON.stringify(ratings));
+
+        if (currentRater < numRaters) {
+          currentRater++;
+          localStorage.setItem("currentRater", currentRater);
+          window.location.href = "rating.html";
+        } else {
+          window.location.href = "submit.html";
+        }
+      } else {
+        ratingForm.reportValidity();
+      }
+    };
+  </script>
+</body>
+</html>

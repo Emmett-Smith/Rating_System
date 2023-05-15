@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Submission Page</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+  <script src="rating.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Thank you for completing the rating!</h1>
+    <button id="resultsButton">See Your Results</button>
+
+    <script>
+      var numRaters = parseInt(localStorage.getItem("numRaters"));
+      var attributes = ["Intelligence", "Toned Physique", "Kindness", "Physical Appearance", "Hair", "Masculinity", "Empathy/Thoughtfulness", "Reliability", "Smell", "Humor", "Competence (Practical Skills)"];
+
+      document.getElementById("resultsButton").onclick = function() {
+        var selfScore = 0;
+        var feedback = "";
+
+        // Retrieve the ratings and calculate the average score
+        for (var i = 1; i <= numRaters; i++) {
+          var ratings = JSON.parse(localStorage.getItem("ratings_" + i));
+          for (var attribute in ratings) {
+            selfScore += ratings[attribute];
+          }
+        }
+        selfScore /= (numRaters * attributes.length);
+
+        // Generate feedback based on the self score
+        if (selfScore < 6) {
+          feedback += "<p>Recommendation: Consider focusing on personal development and self-improvement.</p>";
+        } else if (selfScore < 8) {
+          feedback += "<p>Recommendation: Continue to work on enhancing your desirable traits.</p>";
+        } else {
+          feedback += "<p>Recommendation: Congratulations! You have strong desirable traits. We have no clue why you can't pull! Tough luck :(</p>";
+        }
+
+        if (selfScore > 7) {
+          feedback += "<p>You should be proud of yourself! You have exceptional qualities.</p>";
+        } else if (selfScore < 4) {
+          feedback += "<p>Don't be too hard on yourself. Everyone has areas they can improve on.</p>";
+        } else {
+          feedback += "<p>Keep up the good work and strive for continuous personal growth.</p>";
+        }
+
+        // Generate suggestions for improvement from others
+        feedback += "<h3>Suggestions for Improvement:</h3>";
+        for (var i = 1; i <= numRaters; i++) {
+          var ratings = JSON.parse(localStorage.getItem("ratings_" + i));
+          console.log("Ratings for rater " + i + ":", ratings); // Debugging statement
+          for (var attribute in ratings) {
+            if (ratings[attribute] < selfScore) {
+              feedback += "<p>- Improve your " + attribute + " to be more appealing.</p>";
+            } else if (ratings[attribute] > selfScore) {
+              feedback += "<p>- Leverage your strength in " + attribute + " to your advantage.</p>";
+            } else {
+              feedback += "<p>- Maintain your level of " + attribute + ".</p>";
+            }
+          }
+        }
+
+
+
+        // Clear the ratings from local storage
+        for (var i = 1; i <= numRaters; i++) {
+          localStorage.removeItem("ratings_" + i);
+        }
+
+        // Display the results
+        var resultsContainer = document.createElement("div");
+        resultsContainer.innerHTML = "<h2>Results</h2>" +
+          "<p>Score: " + selfScore.toFixed(2) + "</p>" +
+          "<h3>Feedback:</h3>" +
+          feedback;
+        document.body.appendChild(resultsContainer);
+      };
+    </script>
+  </div>
+</body>
+</html>
